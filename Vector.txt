@@ -1,0 +1,28 @@
+#Vector library#
+#version 1.0#
+
+#define namespace#
+vector = def {};
+
+#define vector3 structure#
+vector.xyz = def {
+	x:0,
+	y:0,
+	z:0
+};
+
+#define functions#
+vector.add = (a,b) -> c {
+	c = new vector.xyz;
+	c.x = a.x + b.x;
+	c.y = a.y + b.y;
+	c.z = a.z + b.z;
+};
+
+vector.sub = (a,b) -> c {
+	c = new vector.xyz;
+	c.x = a.x - b.x;
+	c.y = a.y - b.y;
+	c.z = a.z - b.z;
+};
+

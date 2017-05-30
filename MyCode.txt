@@ -1,0 +1,24 @@
+include "Vector.txt";
+
+write("Hello World");
+
+txt = "Enter x,y,z";
+write(txt);
+a = new vector.xyz;
+a.x = read();
+a.y = read();
+a.z = read();
+
+write(txt);
+b = new vector.xyz;
+b.x = read();
+b.y = read();
+b.z = read();
+
+c = vector.add(a,b);
+d = vector.sub(a,b);
+
+write("Added:");
+write(c);
+write("Subtracted:");
+write(d);
