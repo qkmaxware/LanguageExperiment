@@ -89,6 +89,15 @@ public class Interpreter {
                 return null;
             }
         });
+        global.Set("throw", new SystemFunction(){
+            @Override
+            public Object Function(Scope scope, Object... params) {
+                if(params.length > 0){
+                    throw new LiveThrownException(params[0]);
+                }
+                throw new LiveThrownException(null);
+            }
+        });
         
         
         //Create Math functions

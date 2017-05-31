@@ -24,6 +24,8 @@ public class Parser {
     ParseToken WHILE = new ParseToken("while","^while(?=\\W|$)");
     ParseToken IF = new ParseToken("if","^if(?=\\W|$)");
     ParseToken VAR = new ParseToken("var","^var(?=\\W|$)");
+    ParseToken TRY = new ParseToken("try","^try(?=\\W|$)");
+    ParseToken CATCH = new ParseToken("catch","^catch(?=\\W|$)");
     //Primitives
     ParseToken WORD = new ParseToken("name", "^[a-zA-Z_]\\w*");
     ParseToken STRING = new ParseToken("quote", "^([\"'])(?:(?=(\\\\?))\\2.)*?\\1");
@@ -64,6 +66,8 @@ public class Parser {
                 WHILE,
                 IF,
                 VAR,
+                TRY,
+                CATCH,
                 WORD, 
                 STRING, 
                 NUM, 
@@ -131,12 +135,18 @@ public class Parser {
         return program;
     }
     
-    // <statement> :: ( <assignment> | <conditional> | <loop> | <block> | <evaluatable> | <loop> );
+    // <statement> :: ( <include> | <try-catch> <assignment> | <conditional> | <loop> | <block> | <evaluatable> | <loop> );
     private AST ParseStatement(RQueue<ParseToken.TokenMatch> queue){
         int r = queue.RestorePoint();
         
         //Parse inlcude statement
         AST s = ParseInclude(queue);
+        if(s != null)
+            return s;
+        
+        //Try catch block
+        queue.RestoreTo(r);
+        s = ParseTryCatch(queue);
         if(s != null)
             return s;
         
@@ -158,7 +168,7 @@ public class Parser {
         if(s != null)
             return s;
         
-        //TODO Loop statment
+        //Loop statment
         queue.RestoreTo(r);
         s = ParseLoop(queue);
         if(s != null)
@@ -173,6 +183,36 @@ public class Parser {
         queue.RestoreTo(r);
         
         return null;
+    }
+    
+    // <try-catch> :: try <block> catch <name> <block>
+    private AST ParseTryCatch(RQueue<ParseToken.TokenMatch> queue){
+        if(!ParseTry(queue)){
+            return null;
+        }
+        
+        AST tryBlock = ParseBlock(queue);
+        if(tryBlock == null){
+            throw new ParseException("Expecting code block after try keyword, but none found.");
+        }
+        
+        TryCatch ast = new TryCatch();
+        ast.tryBlock = tryBlock;
+        
+        if(ParseCatch(queue)){
+            //Optional name
+            String s = ParseWord(queue);
+            ast.thrownName = s;
+            
+            AST catchBlock = ParseBlock(queue);
+            if(catchBlock == null){
+                throw new ParseException("Expecting code block after catch keyword, but none found.");
+            }
+            
+            ast.catchBlock = catchBlock;
+        }
+        
+        return ast;
     }
     
     // <include> :: include <string>
@@ -1125,6 +1165,22 @@ public class Parser {
     
     private boolean ParseLessThan(RQueue<ParseToken.TokenMatch> queue){
         if(!queue.isEmpty() && queue.peek().equals(LESS)){  
+            queue.pollFirst();
+            return true;
+        }
+        return false;
+    }
+    
+    private boolean ParseTry(RQueue<ParseToken.TokenMatch> queue){
+        if(!queue.isEmpty() && queue.peek().equals(TRY)){  
+            queue.pollFirst();
+            return true;
+        }
+        return false;
+    }
+    
+    private boolean ParseCatch(RQueue<ParseToken.TokenMatch> queue){
+        if(!queue.isEmpty() && queue.peek().equals(CATCH)){  
             queue.pollFirst();
             return true;
         }

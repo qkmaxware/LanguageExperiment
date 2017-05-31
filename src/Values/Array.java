@@ -8,6 +8,7 @@ package Values;
 import java.util.ArrayList;
 import java.util.Arrays;
 import lang.LiveException;
+import lang.LiveThrownException;
 
 /**
  *
@@ -23,14 +24,14 @@ public class Array implements ICloneable, IIndexable, IComparable{
     
     public Object Get(int i){
         if(i < 0 || i >= elements.size()){
-            throw new LiveException("Array index out of bounds");
+            throw new LiveThrownException("Array index out of bounds");
         }
         return elements.get(i);
     }
     
     public void Set(int i, Object o){
         if(i < 0 || i > elements.size() -1){
-            throw new LiveException("Array index out of bounds");
+            throw new LiveThrownException("Array index out of bounds");
         }
         elements.set(i, o);
     }

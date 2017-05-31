@@ -6,6 +6,7 @@
 package Values;
 
 import lang.LiveException;
+import lang.LiveThrownException;
 
 /**
  *
@@ -30,7 +31,7 @@ public class CharSequence implements IIndexable, IComparable{
     @Override
     public Object Get(int i) {
         if(i < 0 || i >= string.length()){
-            throw new LiveException("String index of of bounds");
+            throw new LiveThrownException("String index of of bounds");
         }
         return new CharSequence(string.charAt(i)+"");
     }

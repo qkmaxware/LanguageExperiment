@@ -52,7 +52,7 @@ public class Lang {
     }
     
     private static String GetDebugProgram(){
-        return "var a = [1,2,3,4,5,6]; array_push(a, 7); var i = 0; while(i < count(a)){ write(a[i]); i = i+1; };";
+        return "try { throw(\"exception found\"); } catch e { write(e); };";
     }
     
 }
