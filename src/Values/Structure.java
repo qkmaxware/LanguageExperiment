@@ -15,7 +15,16 @@ import lang.Scope;
  */
 public class Structure implements ICloneable {
     
-    public Scope scope = new Scope();
+    public final Scope scope;
+    
+    private Structure(){
+        scope = new Scope();
+    }
+    
+    public static Structure Create(){
+        Structure s = new Structure();
+        return s;
+    }
     
     public String toString(){
         return scope.toString();
@@ -23,24 +32,21 @@ public class Structure implements ICloneable {
 
     @Override
     public Object Clone() {
-        Scope parent = scope.GetParent();
-        Scope ns;
-        if(parent != null){
-            ns = parent.Next();
-        }else{
-            ns = new Scope();
-        }
+        Structure s = Structure.Create();
         
         for(Entry<String, Container> kv : scope.GetKeyValuePairs()){
+            //Ignore cloning self references
+            if(kv.getValue().Get() == this){
+                s.scope.Set(kv.getKey(), s);
+                continue;
+            }
+            
             if(kv.getValue().Get() instanceof ICloneable){
-                ns.Set(kv.getKey(), ((ICloneable)kv.getValue().Get()).Clone());
+                s.scope.Set(kv.getKey(), ((ICloneable)kv.getValue().Get()).Clone());
             }else{
-                ns.Set(kv.getKey(), kv.getValue());
+                s.scope.Set(kv.getKey(), kv.getValue());
             }
         }
-        
-        Structure s = new Structure();
-        s.scope = ns;
         
         return s;
     }

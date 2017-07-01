@@ -58,13 +58,29 @@ public class Interpreter {
                 return new Numeric(((IIndexable)params[0]).Count());
             }
         });
-        global.Set("array_push", new SystemFunction(){
+        global.Set("push", new SystemFunction(){
             @Override
             public Object Function(Scope scope, Object... params) {
                 if(params.length < 2 || !(params[0] instanceof Array))
-                    throw new LiveException("Function 'array_push' expects an array, and a value");
+                    throw new LiveException("Function 'push' expects an array, and a value");
                 ((Array)params[0]).Push(params[1]);
                 return null;
+            }
+        });
+        global.Set("peek", new SystemFunction(){
+            @Override
+            public Object Function(Scope scope, Object... params) {
+                if(params.length < 1 || !(params[0] instanceof Array))
+                    throw new LiveException("Function 'peek' expects an array");
+                return ((Array)params[0]).Peek();
+            }
+        });
+        global.Set("pop", new SystemFunction(){
+            @Override
+            public Object Function(Scope scope, Object... params) {
+                if(params.length < 1 || !(params[0] instanceof Array))
+                    throw new LiveException("Function 'peek' expects an array");
+                return ((Array)params[0]).Pop();
             }
         });
         global.Set("exists", new SystemFunction(){
@@ -101,7 +117,7 @@ public class Interpreter {
         
         
         //Create Math functions
-        Structure Maths = new Structure();
+        Structure Maths = Structure.Create();
         Maths.scope.Set("pi", Numeric.PI);
         Maths.scope.Set("e", Numeric.E);
         global.Set("i", Numeric.I);
@@ -154,7 +170,39 @@ public class Interpreter {
                 return new Numeric(Math.random());
             }
         });
-        //round, abs, floor, ceil, sin, cos, tan
+        Maths.scope.Set("abs", new SystemFunction(){
+            @Override
+            public Object Function(Scope scope, Object... params) {
+                if(params.length < 1 || !(params[0] instanceof Numeric))
+                    throw new LiveException("Function 'abs' requires 1 numeric argument");
+                return new Numeric(Math.abs(((Numeric)params[0]).GetReal()), Math.abs(((Numeric)params[0]).GetImaginary()));
+            }
+        });
+        Maths.scope.Set("round", new SystemFunction(){
+            @Override
+            public Object Function(Scope scope, Object... params) {
+                if(params.length < 1 || !(params[0] instanceof Numeric))
+                    throw new LiveException("Function 'abs' requires 1 numeric argument");
+                return new Numeric(Math.round(((Numeric)params[0]).GetReal()), Math.round(((Numeric)params[0]).GetImaginary()));
+            }
+        });
+        Maths.scope.Set("floor", new SystemFunction(){
+            @Override
+            public Object Function(Scope scope, Object... params) {
+                if(params.length < 1 || !(params[0] instanceof Numeric))
+                    throw new LiveException("Function 'abs' requires 1 numeric argument");
+                return new Numeric(Math.floor(((Numeric)params[0]).GetReal()), Math.floor(((Numeric)params[0]).GetImaginary()));
+            }
+        });
+        Maths.scope.Set("ceil", new SystemFunction(){
+            @Override
+            public Object Function(Scope scope, Object... params) {
+                if(params.length < 1 || !(params[0] instanceof Numeric))
+                    throw new LiveException("Function 'abs' requires 1 numeric argument");
+                return new Numeric(Math.ceil(((Numeric)params[0]).GetReal()), Math.ceil(((Numeric)params[0]).GetImaginary()));
+            }
+        });
+        //sin, cos, tan
         global.Set("math", Maths);
     }
     

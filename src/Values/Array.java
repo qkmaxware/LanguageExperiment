@@ -23,21 +23,42 @@ public class Array implements ICloneable, IIndexable, IComparable{
     }
     
     public Object Get(int i){
-        if(i < 0 || i >= elements.size()){
+        if(i >= elements.size() || i < -elements.size()){
             throw new LiveThrownException("Array index out of bounds");
         }
+
+        if(i < 0)
+            i = elements.size() - i;
+        
         return elements.get(i);
     }
     
     public void Set(int i, Object o){
-        if(i < 0 || i > elements.size() -1){
+        if(i >= elements.size() || i < elements.size()){
             throw new LiveThrownException("Array index out of bounds");
         }
+
+        if(i < 0)
+            i = elements.size() - i;
+        
         elements.set(i, o);
     }
     
     public void Push(Object o){
         elements.add(o);
+    }
+    
+    public Object Peek(){
+        if(this.Count() == 0)
+            return null;
+        return this.Get(-1);
+    }
+    
+    public Object Pop(){
+        if(this.Count() == 0)
+            return null;
+        Object o = this.elements.remove(this.elements.size() - 1);
+        return o;
     }
     
     public int Count(){

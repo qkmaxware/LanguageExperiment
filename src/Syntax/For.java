@@ -13,9 +13,13 @@ import lang.Scope;
  *
  * @author Colin Halseth
  */
-public class While implements AST{
+public class For implements AST{
 
-    private AST[] children = new AST[2];
+    public AST assignment;
+    public AST condition;
+    public AST increment;
+    
+    public AST[] children = new AST[1];
     
     @Override
     public AST getChild(int i) {
@@ -30,14 +34,23 @@ public class While implements AST{
     @Override
     public Object Run(Scope parent) {
         Scope scope = parent.Next();
-        AST bool = children[0];
-        AST block = children[1];
+        AST block = children[0];
         
-        if(bool == null || block == null)
+        if(block == null)
             throw new LiveException("Missing condition or block for while statement");
-            
+        
+        if(this.assignment == null)
+            throw new LiveException("Missing assignment expression");
+        if(this.condition == null)
+            throw new LiveException("Missing required conditional statement");
+        if(this.increment == null)
+                throw new LiveException("Missing required increment or decrement statement");
+        
+        //Establish initial assignment
+        this.assignment.Run(scope);
+        
         while(true){
-            Object o = bool.Run(scope);
+            Object o = condition.Run(scope);
             if(!(o instanceof Numeric))
                 throw new LiveException("Cannot evaluate while condition to a boolean value");
             
@@ -47,6 +60,8 @@ public class While implements AST{
             }else{
                 break;
             }
+            
+            increment.Run(scope);
         }
         
         return null;

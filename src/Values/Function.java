@@ -6,7 +6,6 @@
 package Values;
 
 import Syntax.AST;
-import java.util.Arrays;
 import lang.Container;
 import lang.LiveException;
 import lang.Scope;
@@ -20,7 +19,6 @@ public class Function implements ICloneable{
     public String[] in;
     public String out;
     public AST fn;
-    
     
     public Object Call(Scope caller, Object... parameters){
         Scope n = caller.Next();

@@ -47,7 +47,11 @@ public class FunctionCall implements AST{
             throw new LiveException("Variable "+p.right+" is not a function");
         }
         
-        return ((Function)j.Get()).Call(parent, paramValues);   
+        //Set "this" reference for fast access
+        Scope s = parent.Next();
+        s.Set("this", p.left);
+        
+        return ((Function)j.Get()).Call(s, paramValues);   
     }
     
 }

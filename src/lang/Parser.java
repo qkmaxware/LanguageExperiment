@@ -22,6 +22,7 @@ public class Parser {
     ParseToken STRUCT = new ParseToken("def","^def(?=\\W|$)");
     ParseToken INCLUDE = new ParseToken("include","^include(?=\\W|$)");
     ParseToken WHILE = new ParseToken("while","^while(?=\\W|$)");
+    ParseToken FOR = new ParseToken("for","^for(?=\\W|$)");
     ParseToken IF = new ParseToken("if","^if(?=\\W|$)");
     ParseToken VAR = new ParseToken("var","^var(?=\\W|$)");
     ParseToken TRY = new ParseToken("try","^try(?=\\W|$)");
@@ -64,6 +65,7 @@ public class Parser {
                 STRUCT,
                 INCLUDE,
                 WHILE,
+                FOR,
                 IF,
                 VAR,
                 TRY,
@@ -263,6 +265,11 @@ public class Parser {
             return loop;
         queue.RestoreTo(r);
         
+        loop = ParseForLoop(queue);
+        if(loop != null)
+            return loop;
+        queue.RestoreTo(r);
+        
         return null;
     }
     
@@ -274,7 +281,7 @@ public class Parser {
         
         AST exp = ParseNumExp(queue);
         if(exp == null){
-            throw new ParseException("If statement must be followed by a boolean expression");
+            throw new ParseException("While statement must be followed by a boolean expression");
         }
         
         AST block = ParseStatement(queue);
@@ -287,6 +294,61 @@ public class Parser {
         i.setChild(1, block);
         
         return i;
+    }
+    
+    // <for-loop> :: for (<assignment>; <bool-exp>; <exp>) <block>
+    private AST ParseForLoop(RQueue<ParseToken.TokenMatch> queue){
+        if(!ParseForKeyword(queue)){
+            return null;
+        }
+        
+        if(!ParseOpenBracket(queue)){
+            throw new ParseException("Malformed for statement");
+        }
+        
+        //Assignement
+        AST ass = ParseAssignment(queue);
+        if(ass == null){
+            throw new ParseException("Malformed for statement");
+        }
+        
+        if(!ParseSemiColon(queue)){
+            throw new ParseException("Malformed for statement");
+        }
+        
+        //Boolean condition
+        AST exp = ParseNumExp(queue);
+        if(exp == null){
+            throw new ParseException("Malformed for statement");
+        }
+        
+        if(!ParseSemiColon(queue)){
+            throw new ParseException("Malformed for statement");
+        }
+        
+        //Increment
+        AST inc = ParseAssignment(queue);
+        if(inc == null){
+            throw new ParseException("Malformed for statement");
+        }
+        
+        if(!ParseCloseBracket(queue)){
+            throw new ParseException("Malformed for statement");
+        }
+        
+        AST block = ParseStatement(queue);
+        if(block == null){
+            throw new ParseException("Expecting if statement body, by found none");
+        }
+        
+        
+        For loop = new For();
+        loop.assignment = ass;
+        loop.condition = exp;
+        loop.increment = inc;
+        loop.children[0] = block;
+        
+        return loop;
     }
     
     // <block> :: { <program> }
@@ -1141,6 +1203,14 @@ public class Parser {
     
     private boolean ParseWhileKeyword(RQueue<ParseToken.TokenMatch> queue){
         if(!queue.isEmpty() && queue.peek().equals(WHILE)){  
+            queue.pollFirst();
+            return true;
+        }
+        return false;
+    }
+    
+    private boolean ParseForKeyword(RQueue<ParseToken.TokenMatch> queue){
+        if(!queue.isEmpty() && queue.peek().equals(FOR)){  
             queue.pollFirst();
             return true;
         }

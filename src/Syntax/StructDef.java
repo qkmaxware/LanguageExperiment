@@ -33,7 +33,7 @@ public class StructDef implements AST{
 
     @Override
     public Object Run(Scope parent) {
-        Structure structure = new Structure();
+        Structure structure = Structure.Create();
         
         for(AST mapping : children){
             if(mapping instanceof Mapping){
