@@ -34,7 +34,7 @@ public class Array implements ICloneable, IIndexable, IComparable{
     }
     
     public void Set(int i, Object o){
-        if(i >= elements.size() || i < elements.size()){
+        if(i >= elements.size() || i < -elements.size()){
             throw new LiveThrownException("Array index out of bounds");
         }
 
